@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>India Running · Taper Stream Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --coral:#211D17; --coral-deep:#000000; --coral-soft:#EDEAE3;
+  --paper:#FAF7F1; --paper-edge:#EFE9DF; --ink:#221E18; --ink-soft:#6E675C;
+  --navy:#1C2A47; --purple:#5C4FD3; --purple-deep:#3E339B;
+  --green:#128A63; --green-deep:#0A6448; --green-soft:#E4F4ED;
+  --guard:#B02E2E; --guard-soft:#FBEAEA;
+  --amber:#B9761B; --amber-soft:#FBF1DF;
+  --r:20px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  font-family:'Instrument Sans',system-ui,sans-serif;
+  background:#12100D; color:var(--ink);
+  min-height:100vh; display:flex; align-items:flex-start; justify-content:center;
+  padding:32px 16px 64px;
+}
+.stage{display:flex; gap:40px; align-items:flex-start; flex-wrap:wrap; justify-content:center}
+
+/* ---------- side panel ---------- */
+.side{max-width:280px; color:#B9B2A6; padding-top:12px}
+.side h1{font-family:'Fraunces',serif; font-weight:600; font-size:26px; color:#F4EFE7; line-height:1.15; margin-bottom:12px}
+.side h1 em{font-style:italic; color:#D9D2C5}
+.side p{font-size:13.5px; line-height:1.65; margin-bottom:14px}
+.side .hint{font-size:12px; color:#7C766B; border-left:2px solid #3A362F; padding-left:10px; line-height:1.6}
+.legend{display:flex; flex-direction:column; gap:8px; margin:18px 0}
+.legend div{display:flex; align-items:center; gap:9px; font-size:12.5px}
+.legend i{width:10px;height:10px;border-radius:50%;flex:none}
+
+/* ---------- phone ---------- */
+.phone{
+  width:393px; max-width:100%; background:#000; border-radius:52px; padding:12px;
+  box-shadow:0 40px 80px rgba(0,0,0,.55), 0 0 0 1px #2A2A2A;
+  flex:none;
+}
+.screen{
+  background:var(--paper); border-radius:42px; overflow:hidden; position:relative;
+  height:820px; display:flex; flex-direction:column;
+}
+.notch{position:absolute; top:10px; left:50%; transform:translateX(-50%); width:118px; height:30px; background:#000; border-radius:20px; z-index:50}
+.statusbar{height:48px; flex:none; display:flex; align-items:flex-end; justify-content:space-between; padding:0 26px 4px; font-size:13px; font-weight:600; color:#fff; position:relative; z-index:5}
+
+/* race-world header */
+.race-head{
+  background:linear-gradient(150deg,#3B352C 0%, var(--coral) 45%, var(--coral-deep) 100%);
+  padding:52px 20px 16px; margin-top:-48px; flex:none; color:#fff; position:relative;
+}
+.race-head .kicker{font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; opacity:.85; font-weight:600}
+.race-head .row{display:flex; align-items:flex-end; justify-content:space-between; margin-top:4px}
+.race-head h2{font-size:19px; font-weight:700; letter-spacing:-.01em}
+.tminus{text-align:right; line-height:1}
+.tminus b{font-family:'Fraunces',serif; font-size:34px; font-weight:600; display:block}
+.tminus span{font-size:10px; letter-spacing:.12em; text-transform:uppercase; opacity:.8}
+.phasebar{display:flex; gap:5px; margin-top:12px}
+.phasebar div{flex:1; height:4px; border-radius:2px; background:rgba(255,255,255,.28)}
+.phasebar div.on{background:#fff}
+.phasebar div.now{background:#D9D2C5; box-shadow:0 0 0 2px rgba(255,255,255,.25)}
+.phase-label{font-size:11px; margin-top:7px; opacity:.9}
+.phase-label b{font-weight:700}
+
+.tminus b.tick{animation:tick .28s ease both}
+@keyframes tick{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.tminus b.tock{animation:tock .28s ease both}
+@keyframes tock{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+
+/* scrubber */
+.scrubber{flex:none; background:var(--paper); border-bottom:1px solid var(--paper-edge); padding:12px 0 10px; overflow-x:auto; scrollbar-width:none; scroll-behavior:smooth}
+.scrubber::-webkit-scrollbar{display:none}
+.scrubber .track{display:flex; gap:6px; padding:0 16px; width:max-content}
+.chip{
+  flex:none; display:flex; flex-direction:column; align-items:center; gap:5px;
+  padding:8px 10px 7px; border-radius:14px; border:1px solid transparent; cursor:pointer;
+  background:transparent; font-family:inherit;
+}
+.chip span{font-size:11.5px; font-weight:600; color:var(--ink-soft)}
+.chip i{border-radius:50%; display:block; transition:transform .15s}
+.chip.p1 i{background:var(--coral)} .chip.p2 i{background:#128A63} .chip.p3 i{background:var(--purple)} .chip.p4 i{background:#9A938A}
+.chip.sel{background:#fff; border-color:var(--paper-edge); box-shadow:0 2px 8px rgba(34,30,24,.07)}
+.chip.sel span{color:var(--ink)}
+.chip.race i{background:var(--coral); box-shadow:0 0 0 3px var(--coral-soft)}
+
+/* feed */
+.feed{flex:1; overflow-y:auto; padding:16px 16px 90px; scroll-behavior:smooth; overscroll-behavior:contain; touch-action:pan-y}
+.feed.out-up{animation:outUp .18s ease-in both}
+.feed.out-down{animation:outDown .18s ease-in both}
+.feed.in-up{animation:inUp .24s ease-out both}
+.feed.in-down{animation:inDown .24s ease-out both}
+@keyframes outUp{to{opacity:0;transform:translateY(-36px)}}
+@keyframes outDown{to{opacity:0;transform:translateY(36px)}}
+@keyframes inUp{from{opacity:0;transform:translateY(36px)}to{opacity:1;transform:none}}
+@keyframes inDown{from{opacity:0;transform:translateY(-36px)}to{opacity:1;transform:none}}
+.swipe-hint{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0 18px;color:#A79E90;font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;user-select:none}
+.swipe-hint .chev{font-size:15px;animation:bob 1.6s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(-4px);opacity:1}}
+.daybar{display:flex; align-items:baseline; justify-content:space-between; padding:2px 4px 12px}
+.daybar b{font-size:13px; font-weight:700}
+.daybar span{font-size:12px; color:var(--ink-soft)}
+
+.card{border-radius:var(--r); margin-bottom:12px; overflow:hidden; animation:pop .3s ease both}
+@keyframes pop{from{opacity:0; transform:translateY(8px)}to{opacity:1; transform:none}}
+.card:nth-child(2){animation-delay:.04s}.card:nth-child(3){animation-delay:.08s}.card:nth-child(4){animation-delay:.12s}.card:nth-child(5){animation-delay:.16s}
+
+.kick{font-size:10px; font-weight:700; letter-spacing:.13em; text-transform:uppercase; margin-bottom:8px; display:flex; align-items:center; gap:6px}
+.card h3{font-size:17px; font-weight:700; line-height:1.3; letter-spacing:-.01em}
+.card .body{font-size:13.5px; line-height:1.55; margin-top:6px}
+
+/* card skins */
+.c-hero{background:linear-gradient(150deg,#3B352C, var(--coral) 55%, var(--coral-deep)); color:#fff; padding:18px}
+.c-hero .kick{color:#CFC8BB}
+.c-hero .body{color:#E4DFD5}
+.btnrow{display:flex; gap:8px; margin-top:14px; flex-wrap:wrap}
+.btn{font-family:inherit; font-size:13px; font-weight:600; padding:10px 16px; border-radius:999px; border:none; cursor:pointer; transition:transform .1s}
+.btn:active{transform:scale(.96)}
+.btn-solid{background:#fff; color:var(--coral-deep)}
+.btn-ghost{background:rgba(255,255,255,.16); color:#fff}
+.c-hero.done{background:var(--green-soft); color:var(--green-deep)}
+.c-hero.done .kick{color:var(--green)}
+.c-hero.done .body{color:#2E6B55}
+
+.c-paper{background:#fff; border:1px solid var(--paper-edge); padding:16px}
+.c-paper .kick{color:var(--ink-soft)}
+
+.c-guard{background:var(--guard-soft); border:1px solid #F2CFCF; padding:16px}
+.c-guard .kick{color:var(--guard)}
+.c-guard h3{color:#7E1F1F}
+.c-guard .body{color:#8A4A4A}
+
+.c-shop{background:var(--amber-soft); border:1px solid #F0DDBB; padding:16px}
+.c-shop .kick{color:var(--amber)}
+.c-shop .btn{background:var(--ink); color:#fff; margin-top:12px}
+
+.c-media{background:linear-gradient(160deg,#6A5CF0, var(--purple) 55%, var(--purple-deep)); color:#fff; padding:18px}
+.c-media .kick{color:#D9D4FF}
+.c-media .body{color:#E6E2FF}
+.playrow{display:flex; align-items:center; gap:12px; margin-top:14px}
+.playbtn{width:46px;height:46px;border-radius:50%;background:var(--coral);border:none;cursor:pointer;color:#fff;font-size:16px;display:flex;align-items:center;justify-content:center;flex:none;transition:transform .1s}
+.playbtn:active{transform:scale(.92)}
+.prog{flex:1}
+.prog .bar{height:4px;background:rgba(255,255,255,.25);border-radius:2px;overflow:hidden}
+.prog .bar i{display:block;height:100%;width:0;background:#fff;border-radius:2px;transition:width .3s linear}
+.prog .time{display:flex;justify-content:space-between;font-size:10.5px;margin-top:5px;opacity:.8}
+.chips{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+.mchip{font-size:11px;font-weight:600;background:rgba(255,255,255,.16);padding:5px 10px;border-radius:999px}
+
+.c-green{background:var(--green-soft); border:1px solid #C7E6D8; padding:16px}
+.c-green .kick{color:var(--green)}
+.c-green h3{color:var(--green-deep)}
+.c-green .body{color:#2E6B55}
+
+/* pack list */
+.pl-head{display:flex;justify-content:space-between;align-items:baseline}
+.pl-count{font-size:12px;color:var(--ink-soft);font-weight:600}
+.pl-bar{height:5px;background:var(--paper-edge);border-radius:3px;margin:10px 0 4px;overflow:hidden}
+.pl-bar i{display:block;height:100%;background:var(--coral);border-radius:3px;transition:width .25s}
+.pl-item{display:flex;align-items:flex-start;gap:11px;padding:11px 0;border-bottom:1px solid var(--paper-edge);cursor:pointer}
+.pl-item:last-child{border:none;padding-bottom:2px}
+.pl-check{width:21px;height:21px;border-radius:7px;border:1.5px solid #CFC8BB;flex:none;margin-top:1px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;transition:all .15s}
+.pl-item.on .pl-check{background:var(--coral);border-color:var(--coral)}
+.pl-item .t{font-size:14px;font-weight:600;line-height:1.3}
+.pl-item.on .t{color:var(--ink-soft);text-decoration:line-through}
+.pl-item .prov{font-size:11.5px;color:var(--ink-soft);margin-top:2px}
+.prov b{color:var(--amber);font-weight:600}
+.prov u{color:#4A79C4;text-decoration:none;font-weight:600}
+
+/* quiet day */
+.c-quiet{text-align:center; padding:44px 24px; background:transparent}
+.c-quiet .emo{font-size:40px}
+.c-quiet h3{font-size:19px; margin-top:12px}
+.c-quiet .body{color:var(--ink-soft); max-width:250px; margin:8px auto 0}
+
+/* calculator */
+.calc-out{display:flex;gap:10px;margin-top:14px}
+.calc-box{flex:1;background:var(--paper);border-radius:14px;padding:12px;text-align:center}
+.calc-box b{font-family:'Fraunces',serif;font-size:24px;font-weight:600;display:block;color:var(--coral-deep)}
+.calc-box span{font-size:10.5px;color:var(--ink-soft);letter-spacing:.06em;text-transform:uppercase;font-weight:600}
+input[type=range]{width:100%;accent-color:var(--coral);margin-top:10px}
+.wt-label{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-soft);font-weight:600;margin-top:12px}
+.wt-label b{color:var(--ink);font-size:13px}
+.meals{font-size:12.5px;line-height:1.6;margin-top:12px;color:var(--ink-soft);background:var(--paper);border-radius:12px;padding:11px 13px}
+.meals b{color:var(--ink)}
+
+/* pace table */
+.pace-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--paper-edge);font-size:13.5px}
+.pace-row:last-child{border:none}
+.pace-row .seg{font-weight:700}
+.pace-row .pc{font-family:'Fraunces',serif;font-weight:600;font-size:15px}
+.pace-row .note{font-size:11px;color:var(--ink-soft);font-style:italic;font-family:'Fraunces',serif}
+.watch{display:flex;align-items:center;gap:12px;background:#0E3B2E;color:#fff;border-radius:14px;padding:13px 14px;margin-top:12px}
+.watch .t{font-size:13px;font-weight:600;flex:1;line-height:1.35}
+.watch .btn{background:#fff;color:#0E3B2E;padding:8px 14px}
+
+/* morning brief */
+.brief-row{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--paper-edge);align-items:baseline}
+.brief-row:last-child{border:none}
+.brief-row .tm{font-family:'Fraunces',serif;font-weight:600;font-size:16px;width:64px;flex:none;color:var(--coral-deep)}
+.brief-row .what{font-size:14px;font-weight:600;line-height:1.35}
+.brief-row .sub{font-size:12px;color:var(--ink-soft);font-weight:400;margin-top:1px}
+
+/* why layer */
+.why-toggle{margin-top:12px;font-size:11.5px;font-weight:600;background:none;border:none;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px;padding:0;opacity:.75}
+.c-hero .why-toggle,.c-media .why-toggle{color:#fff}
+.c-paper .why-toggle,.c-shop .why-toggle,.c-guard .why-toggle,.c-green .why-toggle{color:var(--ink-soft)}
+.why{display:none;margin-top:10px;font-size:12px;line-height:1.55;border-radius:12px;padding:10px 12px}
+.why.open{display:block;animation:pop .2s ease}
+.c-hero .why,.c-media .why{background:rgba(0,0,0,.18);color:#fff}
+.c-paper .why,.c-shop .why,.c-guard .why,.c-green .why{background:var(--paper);color:var(--ink-soft)}
+.why b{font-weight:700}
+
+.signoff{font-family:'Fraunces',serif;font-style:italic;text-align:center;color:#A79E90;font-size:14px;padding:20px 0 8px}
+
+/* bottom nav */
+.navbar{position:absolute;bottom:0;left:0;right:0;background:rgba(250,247,241,.92);backdrop-filter:blur(12px);border-top:1px solid var(--paper-edge);display:flex;padding:10px 8px 24px;z-index:20}
+.navbar div{flex:1;text-align:center;font-size:10px;font-weight:600;color:#A79E90;display:flex;flex-direction:column;gap:3px;align-items:center}
+.navbar div.on{color:var(--coral-deep)}
+.navbar .ic{font-size:19px}
+.homedot{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:130px;height:5px;background:#00000022;border-radius:3px;z-index:30}
+.toast{position:absolute;left:50%;bottom:110px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;font-size:13px;font-weight:600;padding:11px 18px;border-radius:999px;opacity:0;pointer-events:none;transition:all .25s;z-index:60;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="stage">
+
+  <div class="side">
+    <h1>One entry,<br><em>the whole road</em> ✦</h1>
+    <p>Add a race → the app runs a time-triggered content stream from T−15 to race morning. Every card is matched to what the runner is feeling that day.</p>
+    <div class="legend">
+      <div><i style="background:#F4EFE7"></i> Trust the taper — reassure (T−15…−10)</div>
+      <div><i style="background:#128A63"></i> Shift to logistics — organize (T−9…−7)</div>
+      <div><i style="background:var(--purple)"></i> Race week — feed the checklist brain (T−6…−3)</div>
+      <div><i style="background:#9A938A"></i> The calm-down — say less (T−2…−0)</div>
+    </div>
+    <p class="hint"><b style="color:#D9D2C5">Swipe up</b> to move to the next day, <b style="color:#D9D2C5">swipe down</b> to rewind (trackpad scroll and arrow keys work too). On days with more cards, the feed scrolls first — the swipe pages once you reach the edge. Everything is tappable, and “ⓘ why this card” shows the research behind each card.</p>
+  </div>
+
+  <div class="phone">
+    <div class="screen">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span>􀙇 􀛨</span></div>
+
+      <div class="race-head">
+        <div class="kicker">Sat 18 Oct · Amsterdam · Marathon · Target 3:30</div>
+        <div class="row">
+          <h2>TCS Amsterdam Marathon</h2>
+          <div class="tminus"><b id="tnum">T−9</b><span id="tsub">days to go</span></div>
+        </div>
+        <div class="phasebar" id="phasebar"></div>
+        <div class="phase-label" id="phaselabel"></div>
+      </div>
+
+      <div class="scrubber" id="scrubber"><div class="track" id="track"></div></div>
+
+      <div class="feed" id="feed"></div>
+
+      <div class="navbar">
+        <div><span class="ic">🗓️</span>Calendar</div>
+        <div class="on"><span class="ic">🏅</span>My race</div>
+        <div><span class="ic">🫶</span>Community</div>
+        <div><span class="ic">👤</span>Profile</div>
+      </div>
+      <div class="toast" id="toast"></div>
+      <div class="homedot"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const PHASES = {
+  1:{name:'Trust the taper', feel:'restless · doubting fitness', cls:'p1'},
+  2:{name:'Shift to logistics', feel:'planning brain switches on', cls:'p2'},
+  3:{name:'Race week', feel:'nervous energy · feed it well', cls:'p3'},
+  4:{name:'The calm-down', feel:'anxiety peaks · say less', cls:'p4'}
+};
+
+const DAYS = [
+ {d:15, phase:1, date:'Sat 3 Oct', cards:[
+   {type:'hero', kick:'DO THIS TODAY', title:'Last long run — full dress rehearsal 👟', body:'Race shoes, race kit, race breakfast. Take your gels at 8K, then every 6K — exactly like race day.', why:'<b>The most actionable day of the taper.</b> Practising the exact fueling sequence trains the gut and removes a race-day unknown. Everything after today is maintenance.'},
+   {type:'media', kick:'WATCH TONIGHT · 90 SEC', title:'Why less is more 🎬', body:'The taper cuts your volume ~40%. Here’s the physiology of why that makes you faster, not slower.', dur:'1:32', chips:['Why taper','Week one','Race week'], why:'A 3-week taper improves finish times by ~5½ min on average (analysis of 158k marathoners). Runners <b>educated about taper symptoms report 34% less anxiety</b> — this explainer is the intervention.'}
+ ]},
+ {d:13, phase:1, date:'Mon 5 Oct', cards:[
+   {type:'media', kick:'WATCH · 90 SEC', title:'Your fitness is banked 🏦', body:'Feeling sluggish this week? That’s glycogen refilling and your nervous system recalibrating — not fitness leaving.', dur:'1:28', chips:['Sluggish legs','Glycogen','Trust it'], why:'Up to <b>78% of marathoners report significant taper anxiety</b> (“taper madness”). Normalizing it early is the highest-leverage content in the stream.'},
+   {type:'paper', kick:'TODAY’S RUN', title:'Easy 40 min + 4 × 20s strides', body:'Conversational pace. Strides keep the legs sharp without any fatigue cost.'}
+ ]},
+ {d:12, phase:1, date:'Tue 6 Oct', cards:[
+   {type:'audio', kick:'LISTEN ON YOUR EASY RUN', title:'Phantom pains are normal 🎧', body:'That new knee twinge? 67% of tapering runners report aches that aren’t injuries — just hyperawareness.', dur:'8:14', why:'A study of 156 marathoners: <b>67% reported new aches during taper that weren’t real injuries.</b> Placing this inside the run puts reassurance exactly where rumination happens.'}
+ ]},
+ {d:11, phase:1, date:'Wed 7 Oct', cards:[
+   {type:'guard', kick:'DON’T · THIS PHASE 🚫', title:'No last hard workout to “test fitness”', body:'Your body lost adaptation to 5K-pace work weeks ago. A hard session now only creates soreness and withdraws from race day. The fitness is banked.', why:'The single most damaging taper behavior. Speed sessions in the final 2 weeks cause micro-damage, not sharpness — optimal taper intensity is <b>marathon-to-half pace, never 5K pace.</b> This card intercepts the urge on the exact day it peaks.'}
+ ]},
+ {d:10, phase:1, date:'Thu 8 Oct', cards:[
+   {type:'paper', kick:'HABIT · STARTS TONIGHT', title:'Start banking sleep 😴', body:'You probably won’t sleep well the night before the race — and that’s fine. What matters is the week of sleep you bank now. Lights out 30 min earlier tonight.', why:'Sleep can’t be crammed in race week. The night that matters most is <b>T−2, not T−1</b> — banking now protects it.'}
+ ]},
+ {d:9, phase:2, date:'Fri 9 Oct', cards:[
+   {type:'hero', kick:'DO THIS TODAY', title:'Out-of-town race — lock the logistics ✈️', body:'Passport, bib confirmation email, travel booked. Tick these off before the weekend.', why:'Around T−9 anxiety shifts from body to logistics. The app meets the runner where their brain already went — and clears it before race week.'},
+   {type:'shop', kick:'SHOP · ORDER BY TODAY 🛍️', title:'Race-day gels low? You have 2 of 6', body:'Order today → delivered Mon, before you fly Thu. Practice the brand this Saturday, never on race day.', why:'“Nothing new on race day” is the #1 nutrition rule — gels must arrive in time to be <b>practised on the last quality run.</b> Commerce here is service, not upsell: right count, right deadline.'}
+ ]},
+ {d:8, phase:2, date:'Sat 10 Oct', cards:[
+   {type:'audio', kick:'LISTEN ON YOUR EASY RUN', title:'Pacing a 3:30 marathon 🎧', body:'Why banking time early always backfires — and how a 0–3% controlled split wins.', dur:'12:04', why:'<b>87% of marathon finishers positive-split</b> (1.7M-runner study). Every 1 sec/mile too fast early costs ~2 sec/mile late. Fixing pacing is the single biggest PB lever the app has.'}
+ ]},
+ {d:7, phase:2, date:'Sun 11 Oct', cards:[
+   {type:'green', kick:'UNLOCKED 🎉', title:'Race week is open', body:'Your pack list is live and your fueling plan is in. The Race Guide has everything readable ahead — cards will land daily.', why:'Locks create anticipation. The runner peeks ahead in the Race Guide, but cards arrive when they’re ripe — so guidance is never early enough to feed anxiety.'},
+   {type:'packlist', title:'Pack list 🎒', items:[
+     {t:'Race shoes', p:''},
+     {t:'6 × energy gels', p:'From your <b>Ascend order</b> · delivered Mon ⚡'},
+     {t:'Throwaway warm layer for the corral', p:'<u>Added by weather</u> · 9°C start'},
+     {t:'Cap + zip-lock for phone', p:'<u>Added by weather</u> · rain likely'},
+     {t:'Passport + bib confirmation', p:'From your T−9 reminder ✈️'}
+   ], why:'Redirecting restless energy into gear prep is a <b>recommended coping strategy</b> for taper anxiety. Ticking boxes is the sanctioned outlet — provenance lines (“added by weather”) build trust that the app is watching the details.'},
+   {type:'paper', kick:'FUEL PLAN · ~3:30 FINISH', title:'6 gels · first at 8K, then every 6K ⚡', body:'start · 8K · 14 · 20 · 26 · 32 · 38K · finish. Fluids: ~500 ml/hr at 9°C — grab every second station. Cool race: thirst lies, don’t skip.'}
+ ]},
+ {d:6, phase:3, date:'Mon 12 Oct', cards:[
+   {type:'paper', kick:'COURSE INTEL 📍', title:'Amsterdam: flat, fast, windy at 30K', body:'Vondelpark stretch gets crowded early — start wide. The Amstel river section (25–32K) is exposed: tuck into a group if it’s windy.', why:'Course-specific intel converts general fitness into race execution. This is also where <b>alumni insight</b> from the community slots in (“the 6K water station ran dry last year”).'},
+   {type:'paper', kick:'FROM 2025 FINISHERS 💬', title:'“Don’t trust the 15K water table”', body:'3 alumni tips from runners who raced this course last year · from the Amsterdam 2026 lounge →'}
+ ]},
+ {d:5, phase:3, date:'Tue 13 Oct', cards:[
+   {type:'paper', kick:'SHORT READ · 3 MIN', title:'What to eat this week 🍚', body:'Normal meals until Thursday. Then: swap rotis for rice, cut raw salads and high-fibre dal, nothing new or spicy. Indian-kitchen edition inside.', why:'Race-week meals should be <b>boring and repetitive</b> — new foods are the classic self-sabotage. Localizing to Indian staples (rice > pasta, poha, idli) is where India Running beats every western training app.'}
+ ]},
+ {d:4, phase:3, date:'Wed 14 Oct', cards:[
+   {type:'audio', kick:'LISTEN · 5 MIN', title:'Visualize kilometre 32 🧠', body:'A guided rehearsal of the hard part — and picking the mantra you’ll use when it arrives.', dur:'5:20', why:'Mental rehearsal + a chosen mantra are standard sports-psych tools for settling race nerves. The mantra the runner picks here <b>resurfaces on the race-morning card.</b>'}
+ ]},
+ {d:3, phase:3, date:'Thu 15 Oct', cards:[
+   {type:'calc', kick:'CARB LOAD · STARTS NOW 🍚', title:'48-hour protocol — your numbers', why:'Most runners <b>under-eat</b> the load: they hit 4–5 g/kg when the protocol is 8–12 g/kg, then cram one pasta dinner the night before. A proper load lifts glycogen 50–100% and is worth 2–3% on race day. A calculator fixes a math problem an article can’t.'},
+   {type:'pace', kick:'UNLOCKED AFTER WEATHER CHECK · 9°C, LIGHT RAIN', title:'Race pace strategy 🏁', why:'Delivered only now — pace charts at T−12 feed anxiety; at T−3 they arm execution. Ranges beat single numbers, and the final split is coach-voice on purpose.'}
+ ]},
+ {d:2, phase:4, date:'Fri 16 Oct', cards:[
+   {type:'paper', kick:'TONIGHT MATTERS MOST 😴', title:'This is the sleep night that counts', body:'Almost nobody sleeps well the night before a marathon — and it doesn’t matter. Tonight’s sleep is the one your race runs on. Early dinner, screens off.', why:'Reframing T−2 as the “real” sleep night removes the T−1 insomnia panic entirely. Quiet authority, few words — content volume deliberately shrinks from here.'},
+   {type:'paper', kick:'REMINDER 📣', title:'Bib collection: today 10:00–18:00', body:'Expo Hall 2 · carry ID + confirmation email. Do the expo today, not tomorrow — protect Saturday from chaos.'}
+ ]},
+ {d:1, phase:4, date:'Sat 17 Oct', cards:[
+   {type:'paper', kick:'ONE LIST · THEN REST', title:'Shakeout + flat-lay ✅', body:'15-min easy jog this morning. Kit laid out tonight: bib pinned, gels taped, watch charged, alarm set for 5:45. Early carb dinner. That’s everything.', why:'Anxiety at T−1 prompts last-minute tweaks — a new drink from the expo, an unnecessary run — that undermine sleep and absorption. <b>One screen, no media, nothing to decide.</b> Silence is the feature.'},
+   {type:'quiet', emo:'😌', title:'Nothing else today.', body:'The work is done. The plan is set. See you at 5:45.'}
+ ]},
+ {d:0, phase:4, date:'Sun 18 Oct · RACE DAY', cards:[
+   {type:'brief', kick:'RACE MORNING 🏁', title:'Amsterdam · 9°C · light rain', rows:[
+     {tm:'5:45', what:'Wake', sub:'Breakfast within 15 min — the one you rehearsed'},
+     {tm:'6:00', what:'Eat: 100g carbs', sub:'Bread + honey + banana · sip 500ml'},
+     {tm:'7:30', what:'Leave for start', sub:'Tram 12 → Olympisch Stadion · 25 min'},
+     {tm:'8:20', what:'Corral D closes', sub:'Throwaway layer on until 5 min out'},
+     {tm:'0–5K', what:'5:02–5:07 /km — settle in', sub:'Your mantra: “smooth is fast”'}
+   ], why:'One glanceable card, big type, first split only. Everything else was delivered when it was needed — race morning is for executing, not reading.'},
+   {type:'quiet', emo:'🧡', title:'Go get it, Vikas.', body:'3:30 is in your legs. We’ll see you at T+3 with your result.'}
+ ]}
+];
+
+const PHASE_ORDER = [1,1,1,1,1,2,2,2,3,3,3,3,4,4,4];
+let state = { day: 9, done:{}, packed:{0:true,1:true}, weight:65 };
+
+const feed = document.getElementById('feed');
+const track = document.getElementById('track');
+
+function dotSize(phase, d){ if(d===0) return 13; return {1:8,2:10,3:12,4:7}[phase]; }
+
+function buildScrubber(){
+  track.innerHTML='';
+  DAYS.forEach(day=>{
+    const b=document.createElement('button');
+    b.className='chip '+PHASES[day.phase].cls+(day.d===0?' race':'')+(day.d===state.day?' sel':'');
+    const s=dotSize(day.phase,day.d);
+    b.innerHTML=`<i style="width:${s}px;height:${s}px"></i><span>${day.d===0?'RACE':'T−'+day.d}</span>`;
+    b.onclick=()=>{state.day=day.d; render(); };
+    track.appendChild(b);
+  });
+  const sc=document.getElementById('scrubber');
+  const sel=track.querySelector('.chip.sel');
+  if(sel) sc.scrollTo({left: sel.offsetLeft - (sc.clientWidth - sel.offsetWidth)/2, behavior:'smooth'});
+}
+
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),1800);
+}
+
+function whyBlock(id, txt){
+  if(!txt) return '';
+  return `<button class="why-toggle" onclick="document.getElementById('${id}').classList.toggle('open')">ⓘ why this card</button><div class="why" id="${id}">${txt}</div>`;
+}
+
+let wid=0;
+function renderCard(c, day){
+  wid++;
+  const w = whyBlock('w'+wid, c.why);
+  if(c.type==='hero'){
+    const done = state.done[day.d+c.title];
+    return `<div class="card c-hero ${done?'done':''}">
+      <div class="kick">${done?'✓ DONE — NICE':'✦ '+c.kick}</div>
+      <h3>${c.title}</h3><div class="body">${c.body}</div>
+      <div class="btnrow">
+        <button class="btn btn-solid" onclick="markDone('${day.d+c.title}')">${done?'Undo':'✓ Mark done'}</button>
+        ${done?'':'<button class="btn btn-ghost" onclick="toast(\'Snoozed to this evening\')">Snooze</button><button class="btn btn-ghost" onclick="toast(\'Runbuddy is thinking…\')">Ask Runbuddy</button>'}
+      </div>${w}</div>`;
+  }
+  if(c.type==='media'||c.type==='audio'){
+    const isA=c.type==='audio'; wid++;
+    return `<div class="card c-media">
+      <div class="kick">${isA?'🎙️':'🎬'} ${c.kick}</div>
+      <h3>${c.title}</h3><div class="body">${c.body}</div>
+      <div class="playrow">
+        <button class="playbtn" onclick="togglePlay(this)">▶</button>
+        <div class="prog"><div class="bar"><i></i></div><div class="time"><span class="cur">0:00</span><span>${c.dur}</span></div></div>
+      </div>
+      ${c.chips?'<div class="chips">'+c.chips.map(x=>'<span class="mchip">'+x+'</span>').join('')+'</div>':''}
+      ${isA?'<div class="body" style="font-size:11.5px;opacity:.75;margin-top:10px">Keeps playing when you pocket the phone.</div>':''}
+      ${w}</div>`;
+  }
+  if(c.type==='guard') return `<div class="card c-guard"><div class="kick">${c.kick}</div><h3>${c.title}</h3><div class="body">${c.body}</div>${w}</div>`;
+  if(c.type==='shop') return `<div class="card c-shop"><div class="kick">${c.kick}</div><h3>${c.title}</h3><div class="body">${c.body}</div><button class="btn" onclick="toast('4 gels added · arrives Mon ⚡')">Shop 4 gels</button>${w}</div>`;
+  if(c.type==='green') return `<div class="card c-green"><div class="kick">${c.kick}</div><h3>${c.title}</h3><div class="body">${c.body}</div>${w}</div>`;
+  if(c.type==='paper') return `<div class="card c-paper"><div class="kick">${c.kick}</div><h3>${c.title}</h3><div class="body">${c.body}</div>${w}</div>`;
+  if(c.type==='quiet') return `<div class="card c-quiet"><div class="emo">${c.emo}</div><h3>${c.title}</h3><div class="body">${c.body}</div></div>`;
+  if(c.type==='packlist'){
+    const packed=Object.values(state.packed).filter(Boolean).length;
+    return `<div class="card c-paper">
+      <div class="pl-head"><h3>${c.title}</h3><span class="pl-count">${packed} of ${c.items.length} packed</span></div>
+      <div class="pl-bar"><i style="width:${packed/c.items.length*100}%"></i></div>
+      ${c.items.map((it,i)=>`<div class="pl-item ${state.packed[i]?'on':''}" onclick="togglePack(${i})">
+        <div class="pl-check">✓</div>
+        <div><div class="t">${it.t}</div>${it.p?'<div class="prov">'+it.p+'</div>':''}</div>
+      </div>`).join('')}
+      ${w}</div>`;
+  }
+  if(c.type==='calc'){
+    const kg=state.weight, lo=kg*10, hi=kg*12, meal=Math.round(lo/5/5)*5;
+    return `<div class="card c-paper">
+      <div class="kick" style="color:var(--coral-deep)">${c.kick}</div>
+      <h3>${c.title}</h3>
+      <div class="wt-label"><span>Your weight</span><b>${kg} kg</b></div>
+      <input type="range" min="45" max="95" value="${kg}" oninput="setWeight(this.value)">
+      <div class="calc-out">
+        <div class="calc-box"><b>${lo}–${hi}g</b><span>carbs / day</span></div>
+        <div class="calc-box"><b>~${meal}g</b><span>× 5 meals</span></div>
+      </div>
+      <div class="meals"><b>Indian-kitchen edition:</b> 2 cups rice ≈ 90g · 4 idlis ≈ 60g · poha bowl ≈ 65g · 2 bananas ≈ 50g · mango juice glass ≈ 40g. White rice over roti, skip raw salads, low fibre.</div>
+      ${w}</div>`;
+  }
+  if(c.type==='pace'){
+    return `<div class="card c-paper">
+      <div class="kick" style="color:var(--purple-deep)">${c.kick}</div>
+      <h3>${c.title}</h3>
+      <div style="margin-top:8px">
+        <div class="pace-row"><span class="seg">0–5K</span><span class="pc">5:02–5:07 /km</span><span class="note">settle in</span></div>
+        <div class="pace-row"><span class="seg">5–25K</span><span class="pc">4:56–5:01 /km</span><span class="note">cruise</span></div>
+        <div class="pace-row"><span class="seg">25–35K</span><span class="pc">4:56–5:03 /km</span><span class="note">hold form</span></div>
+        <div class="pace-row"><span class="seg">35–42.2K</span><span class="pc">what’s left</span><span class="note">empty it</span></div>
+      </div>
+      <div class="watch"><span style="font-size:20px">⌚</span><div class="t">Send race plan to your watch<br><span style="font-weight:400;opacity:.75;font-size:11.5px">Pace bands + gel alerts at 8K, then every 6K</span></div><button class="btn" onclick="toast('Sent to Garmin ⌚ ✓')">Send</button></div>
+      ${w}</div>`;
+  }
+  if(c.type==='brief'){
+    return `<div class="card c-paper" style="border:2px solid var(--coral)">
+      <div class="kick" style="color:var(--coral-deep)">${c.kick}</div>
+      <h3 style="font-size:20px">${c.title}</h3>
+      <div style="margin-top:6px">${c.rows.map(r=>`<div class="brief-row"><div class="tm">${r.tm}</div><div><div class="what">${r.what}</div><div class="sub">${r.sub}</div></div></div>`).join('')}</div>
+      ${w}</div>`;
+  }
+  return '';
+}
+
+function render(){
+  const day = DAYS.find(x=>x.d===state.day);
+  const ph = PHASES[day.phase];
+  document.getElementById('tnum').textContent = day.d===0?'🏁':'T−'+day.d;
+  document.getElementById('tsub').textContent = day.d===0?'race day':(day.d===1?'day to go':'days to go');
+  const pb=document.getElementById('phasebar'); pb.innerHTML='';
+  [1,2,3,4].forEach(p=>{const i=document.createElement('div'); if(p<day.phase)i.className='on'; if(p===day.phase)i.className='now'; pb.appendChild(i);});
+  document.getElementById('phaselabel').innerHTML=`<b>${ph.name}</b> — ${ph.feel}`;
+  wid=0;
+  feed.innerHTML = `<div class="daybar"><b>${day.date}</b><span>${day.cards.length} card${day.cards.length>1?'s':''} today</span></div>`
+    + day.cards.map(c=>renderCard(c,day)).join('')
+    + `<div class="signoff">${day.d===0?'go get it ✦':day.phase===4?'rest easy ✦':'one entry, the whole road ✦'}</div>`
+    + swipeHint(day);
+  feed.scrollTop=0;
+  buildScrubber();
+}
+
+function swipeHint(day){
+  const idx = DAYS.findIndex(x=>x.d===day.d);
+  if(idx >= DAYS.length-1) return `<div class="swipe-hint">swipe down to rewind the road</div>`;
+  const next = DAYS[idx+1];
+  return `<div class="swipe-hint"><span class="chev">⌃</span>swipe up · ${next.d===0?'race day':'T−'+next.d}</div>`;
+}
+
+function gotoDay(dir){
+  const idx = DAYS.findIndex(x=>x.d===state.day);
+  const ni = idx + dir;
+  if(ni<0 || ni>=DAYS.length) return;
+  const outCls = dir>0 ? 'out-up' : 'out-down';
+  const inCls  = dir>0 ? 'in-up'  : 'in-down';
+  feed.classList.remove('in-up','in-down');
+  feed.classList.add(outCls);
+  setTimeout(()=>{
+    state.day = DAYS[ni].d;
+    render();
+    const tn=document.getElementById('tnum');
+    tn.classList.remove('tick','tock'); void tn.offsetWidth;
+    tn.classList.add(dir>0?'tick':'tock');
+    feed.classList.remove(outCls);
+    feed.classList.add(inCls);
+    setTimeout(()=>feed.classList.remove(inCls), 260);
+  }, 170);
+}
+
+function atTop(){ return feed.scrollTop <= 2; }
+function atBottom(){ return feed.scrollTop + feed.clientHeight >= feed.scrollHeight - 2; }
+
+// --- touch swipe: up = next day, down = previous day ---
+let tY=null, tPaging=false, tTopStart=false, tBotStart=false;
+feed.addEventListener('touchstart', e=>{
+  tY = e.touches[0].clientY; tPaging=false;
+  tTopStart = atTop(); tBotStart = atBottom();
+}, {passive:true});
+feed.addEventListener('touchmove', e=>{
+  if(tY===null || tPaging) return;
+  const dy = e.touches[0].clientY - tY;
+  if(dy < -64 && tBotStart && atBottom()){ tPaging=true; gotoDay(1); }
+  else if(dy > 64 && tTopStart && atTop()){ tPaging=true; gotoDay(-1); }
+}, {passive:true});
+feed.addEventListener('touchend', ()=>{ tY=null; }, {passive:true});
+
+// --- trackpad / mouse wheel paging at feed edges ---
+let wAcc=0, wLock=false;
+feed.addEventListener('wheel', e=>{
+  if(wLock) return;
+  if(e.deltaY > 0 && atBottom()) wAcc += e.deltaY;
+  else if(e.deltaY < 0 && atTop()) wAcc += e.deltaY;
+  else { wAcc = 0; return; }
+  if(wAcc > 140){ wLock=true; wAcc=0; gotoDay(1); setTimeout(()=>wLock=false, 600); }
+  if(wAcc < -140){ wLock=true; wAcc=0; gotoDay(-1); setTimeout(()=>wLock=false, 600); }
+}, {passive:true});
+
+// --- keyboard ---
+document.addEventListener('keydown', e=>{
+  if(e.key==='ArrowUp' || e.key==='ArrowLeft') gotoDay(-1);
+  if(e.key==='ArrowDown' || e.key==='ArrowRight' || e.key===' '){ if(e.key===' ') e.preventDefault(); gotoDay(1); }
+});
+
+function markDone(k){ state.done[k]=!state.done[k]; render(); if(state.done[k]) toast('Nice. Tomorrow: easy 30-min shakeout 😌'); }
+function togglePack(i){ state.packed[i]=!state.packed[i]; render(); }
+function setWeight(v){ state.weight=+v; render(); }
+function togglePlay(btn){
+  const bar=btn.parentElement.querySelector('.bar i');
+  const cur=btn.parentElement.querySelector('.cur');
+  if(btn._playing){ clearInterval(btn._t); btn._playing=false; btn.textContent='▶'; return; }
+  btn._playing=true; btn.textContent='❚❚'; let p=parseFloat(bar.style.width)||0;
+  btn._t=setInterval(()=>{ p+=1.2; if(p>=100){p=100; clearInterval(btn._t); btn._playing=false; btn.textContent='▶';}
+    bar.style.width=p+'%'; const s=Math.round(p*0.9); cur.textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); },120);
+}
+
+render();
+</script>
+</body>
+</html>
