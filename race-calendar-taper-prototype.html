@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>India Running · Taper Stream Prototype</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
 <style>
 :root{
   --coral:#211D17; --coral-deep:#000000; --coral-soft:#EDEAE3;
@@ -18,22 +18,12 @@
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{
-  font-family:'Instrument Sans',system-ui,sans-serif;
+  font-family:'Inter',system-ui,sans-serif;
   background:#12100D; color:var(--ink);
   min-height:100vh; display:flex; align-items:flex-start; justify-content:center;
   padding:32px 16px 64px;
 }
 .stage{display:flex; gap:40px; align-items:flex-start; flex-wrap:wrap; justify-content:center}
-
-/* ---------- side panel ---------- */
-.side{max-width:280px; color:#B9B2A6; padding-top:12px}
-.side h1{font-family:'roboto',serif; font-weight:600; font-size:26px; color:#F4EFE7; line-height:1.15; margin-bottom:12px}
-.side h1 em{font-style:italic; color:#D9D2C5}
-.side p{font-size:13.5px; line-height:1.65; margin-bottom:14px}
-.side .hint{font-size:12px; color:#7C766B; border-left:2px solid #3A362F; padding-left:10px; line-height:1.6}
-.legend{display:flex; flex-direction:column; gap:8px; margin:18px 0}
-.legend div{display:flex; align-items:center; gap:9px; font-size:12.5px}
-.legend i{width:10px;height:10px;border-radius:50%;flex:none}
 
 /* ---------- phone ---------- */
 .phone{
@@ -57,7 +47,7 @@ body{
 .race-head .row{display:flex; align-items:flex-end; justify-content:space-between; margin-top:4px}
 .race-head h2{font-size:19px; font-weight:700; letter-spacing:-.01em}
 .tminus{text-align:right; line-height:1}
-.tminus b{font-family:'Fraunces',serif; font-size:34px; font-weight:600; display:block}
+.tminus b{font-family:'Inter',sans-serif; font-size:34px; font-weight:600; display:block}
 .tminus span{font-size:10px; letter-spacing:.12em; text-transform:uppercase; opacity:.8}
 .phasebar{display:flex; gap:5px; margin-top:12px}
 .phasebar div{flex:1; height:4px; border-radius:2px; background:rgba(255,255,255,.28)}
@@ -88,7 +78,7 @@ body{
 .chip.race i{background:var(--coral); box-shadow:0 0 0 3px var(--coral-soft)}
 
 /* feed */
-.feed{flex:1; overflow-y:auto; padding:16px 16px 90px; scroll-behavior:smooth; overscroll-behavior:contain; touch-action:pan-y}
+.feed{flex:1; overflow-y:auto; padding:16px 16px 40px; scroll-behavior:smooth; overscroll-behavior:contain; touch-action:pan-y}
 .feed.out-up{animation:outUp .18s ease-in both}
 .feed.out-down{animation:outDown .18s ease-in both}
 .feed.in-up{animation:inUp .24s ease-out both}
@@ -179,7 +169,7 @@ body{
 /* calculator */
 .calc-out{display:flex;gap:10px;margin-top:14px}
 .calc-box{flex:1;background:var(--paper);border-radius:14px;padding:12px;text-align:center}
-.calc-box b{font-family:'Fraunces',serif;font-size:24px;font-weight:600;display:block;color:var(--coral-deep)}
+.calc-box b{font-family:'Inter',sans-serif;font-size:24px;font-weight:600;display:block;color:var(--coral-deep)}
 .calc-box span{font-size:10.5px;color:var(--ink-soft);letter-spacing:.06em;text-transform:uppercase;font-weight:600}
 input[type=range]{width:100%;accent-color:var(--coral);margin-top:10px}
 .wt-label{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-soft);font-weight:600;margin-top:12px}
@@ -191,8 +181,8 @@ input[type=range]{width:100%;accent-color:var(--coral);margin-top:10px}
 .pace-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--paper-edge);font-size:13.5px}
 .pace-row:last-child{border:none}
 .pace-row .seg{font-weight:700}
-.pace-row .pc{font-family:'Fraunces',serif;font-weight:600;font-size:15px}
-.pace-row .note{font-size:11px;color:var(--ink-soft);font-style:italic;font-family:'Fraunces',serif}
+.pace-row .pc{font-family:'Inter',sans-serif;font-weight:600;font-size:15px}
+.pace-row .note{font-size:11px;color:var(--ink-soft);font-style:italic;font-family:'Inter',sans-serif}
 .watch{display:flex;align-items:center;gap:12px;background:#0E3B2E;color:#fff;border-radius:14px;padding:13px 14px;margin-top:12px}
 .watch .t{font-size:13px;font-weight:600;flex:1;line-height:1.35}
 .watch .btn{background:#fff;color:#0E3B2E;padding:8px 14px}
@@ -200,7 +190,7 @@ input[type=range]{width:100%;accent-color:var(--coral);margin-top:10px}
 /* morning brief */
 .brief-row{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--paper-edge);align-items:baseline}
 .brief-row:last-child{border:none}
-.brief-row .tm{font-family:'Fraunces',serif;font-weight:600;font-size:16px;width:64px;flex:none;color:var(--coral-deep)}
+.brief-row .tm{font-family:'Inter',sans-serif;font-weight:600;font-size:16px;width:64px;flex:none;color:var(--coral-deep)}
 .brief-row .what{font-size:14px;font-weight:600;line-height:1.35}
 .brief-row .sub{font-size:12px;color:var(--ink-soft);font-weight:400;margin-top:1px}
 
@@ -214,33 +204,16 @@ input[type=range]{width:100%;accent-color:var(--coral);margin-top:10px}
 .c-paper .why,.c-shop .why,.c-guard .why,.c-green .why{background:var(--paper);color:var(--ink-soft)}
 .why b{font-weight:700}
 
-.signoff{font-family:'Fraunces',serif;font-style:italic;text-align:center;color:#A79E90;font-size:14px;padding:20px 0 8px}
+.signoff{font-family:'Inter',sans-serif;font-style:italic;text-align:center;color:#A79E90;font-size:14px;padding:20px 0 8px}
 
-/* bottom nav */
-.navbar{position:absolute;bottom:0;left:0;right:0;background:rgba(250,247,241,.92);backdrop-filter:blur(12px);border-top:1px solid var(--paper-edge);display:flex;padding:10px 8px 24px;z-index:20}
-.navbar div{flex:1;text-align:center;font-size:10px;font-weight:600;color:#A79E90;display:flex;flex-direction:column;gap:3px;align-items:center}
-.navbar div.on{color:var(--coral-deep)}
-.navbar .ic{font-size:19px}
 .homedot{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:130px;height:5px;background:#00000022;border-radius:3px;z-index:30}
-.toast{position:absolute;left:50%;bottom:110px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;font-size:13px;font-weight:600;padding:11px 18px;border-radius:999px;opacity:0;pointer-events:none;transition:all .25s;z-index:60;white-space:nowrap}
+.toast{position:absolute;left:50%;bottom:60px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;font-size:13px;font-weight:600;padding:11px 18px;border-radius:999px;opacity:0;pointer-events:none;transition:all .25s;z-index:60;white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
 <div class="stage">
-
-  <div class="side">
-    <h1>One entry,<br><em>the whole road</em> ✦</h1>
-    <p>Add a race → the app runs a time-triggered content stream from T−15 to race morning. Every card is matched to what the runner is feeling that day.</p>
-    <div class="legend">
-      <div><i style="background:#F4EFE7"></i> Trust the taper — reassure (T−15…−10)</div>
-      <div><i style="background:#128A63"></i> Shift to logistics — organize (T−9…−7)</div>
-      <div><i style="background:var(--purple)"></i> Race week — feed the checklist brain (T−6…−3)</div>
-      <div><i style="background:#9A938A"></i> The calm-down — say less (T−2…−0)</div>
-    </div>
-    <p class="hint"><b style="color:#D9D2C5">Swipe up</b> to move to the next day, <b style="color:#D9D2C5">swipe down</b> to rewind (trackpad scroll and arrow keys work too). On days with more cards, the feed scrolls first — the swipe pages once you reach the edge. Everything is tappable, and “ⓘ why this card” shows the research behind each card.</p>
-  </div>
 
   <div class="phone">
     <div class="screen">
@@ -261,8 +234,6 @@ input[type=range]{width:100%;accent-color:var(--coral);margin-top:10px}
 
       <div class="feed" id="feed"></div>
 
-      <div class="navbar">
-        <div><span class="ic">🗓️</span>Calendar</div>
         <div class="on"><span class="ic">🏅</span>My race</div>
         <div><span class="ic">🫶</span>Community</div>
         <div><span class="ic">👤</span>Profile</div>
