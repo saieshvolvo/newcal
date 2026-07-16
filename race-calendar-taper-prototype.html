@@ -66,15 +66,17 @@ body{
 .scrubber::-webkit-scrollbar{display:none}
 .scrubber .track{display:flex; gap:6px; padding:0 16px; width:max-content}
 .chip{
-  flex:none; display:flex; flex-direction:column; align-items:center; gap:5px;
+  flex:none; display:flex; flex-direction:column; align-items:center; gap:3px;
   padding:8px 10px 7px; border-radius:14px; border:1px solid transparent; cursor:pointer;
   background:transparent; font-family:inherit;
 }
 .chip span{font-size:11.5px; font-weight:600; color:var(--ink-soft)}
+.chip small{font-size:9.5px; font-weight:500; color:#A79E90; letter-spacing:.02em}
 .chip i{border-radius:50%; display:block; transition:transform .15s}
 .chip.p1 i{background:var(--coral)} .chip.p2 i{background:#128A63} .chip.p3 i{background:var(--purple)} .chip.p4 i{background:#9A938A}
-.chip.sel{background:#fff; border-color:var(--paper-edge); box-shadow:0 2px 8px rgba(34,30,24,.07)}
+.chip.sel{background:var(--paper-edge)}
 .chip.sel span{color:var(--ink)}
+.chip.sel small{color:var(--ink-soft)}
 .chip.race i{background:var(--coral); box-shadow:0 0 0 3px var(--coral-soft)}
 
 /* feed */
@@ -234,10 +236,6 @@ input[type=range]{width:100%;accent-color:var(--coral);margin-top:10px}
 
       <div class="feed" id="feed"></div>
 
-       <!-- <div class="on"><span class="ic">🏅</span>My race</div>
-        <div><span class="ic">🫶</span>Community</div>
-        <div><span class="ic">👤</span>Profile</div>
-    -->
       </div>
       <div class="toast" id="toast"></div>
       <div class="homedot"></div>
@@ -338,7 +336,8 @@ function buildScrubber(){
     const b=document.createElement('button');
     b.className='chip '+PHASES[day.phase].cls+(day.d===0?' race':'')+(day.d===state.day?' sel':'');
     const s=dotSize(day.phase,day.d);
-    b.innerHTML=`<i style="width:${s}px;height:${s}px"></i><span>${day.d===0?'RACE':'T−'+day.d}</span>`;
+    const dt=day.date.replace(' · RACE DAY','').split(' ');
+    b.innerHTML=`<i style="width:${s}px;height:${s}px"></i><span>${day.d===0?'RACE':'T−'+day.d}</span><small>${dt[1]} ${dt[2]}</small>`;
     b.onclick=()=>{state.day=day.d; render(); };
     track.appendChild(b);
   });
